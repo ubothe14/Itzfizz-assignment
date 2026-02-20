@@ -4,7 +4,7 @@ import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import ScrollTrigger from "gsap/ScrollTrigger";
 
-if (typeof window !== "undefined" && gsap.core.globals().ScrollTrigger == null) {
+if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
   gsap.config({ force3D: true, nullTargetWarn: false });
 }
