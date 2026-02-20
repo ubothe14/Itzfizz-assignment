@@ -18,73 +18,59 @@ export default function ScrollVisual() {
     const card = cardRef.current;
     if (!container || !card) return;
 
-    const mm = ScrollTrigger.matchMedia({});
+    const isDesktop =
+      typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches;
+    const distance = isDesktop ? 220 : 140;
+    const scaleFrom = isDesktop ? 0.9 : 0.95;
+    const blurMax = isDesktop ? 8 : 4;
+
+    gsap.set(card, {
+      yPercent: -10,
+      scale: scaleFrom,
+      rotateX: isDesktop ? -12 : -6,
+      rotateY: isDesktop ? 18 : 8,
+      rotateZ: 0,
+      opacity: 0.9,
+      filter: "blur(0px)",
+      transformOrigin: "50% 50%",
+      willChange: "transform, opacity, filter",
+    });
 
     const ctx = gsap.context(() => {
-      mm.add(
-        {
-          desktop: "(min-width: 768px)",
-          mobile: "(max-width: 767px)",
+      gsap.to(card, {
+        y: distance,
+        scale: 1.05,
+        rotateX: isDesktop ? 6 : 3,
+        rotateY: isDesktop ? -8 : -4,
+        rotateZ: isDesktop ? -6 : -2,
+        opacity: 1,
+        filter: `blur(${blurMax}px)`,
+        ease: "none",
+        scrollTrigger: {
+          trigger: container,
+          start: "top top",
+          end: "bottom+=1000 top",
+          scrub: 1.1,
+          pin: true,
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
         },
-        (context) => {
-          const isDesktop = context.conditions?.desktop ?? false;
+      });
 
-          const distance = isDesktop ? 220 : 140;
-          const rotation = isDesktop ? 10 : 4;
-          const scaleFrom = isDesktop ? 0.9 : 0.95;
-          const blurMax = isDesktop ? 8 : 4;
-
-          gsap.set(card, {
-            yPercent: -10,
-            scale: scaleFrom,
-            rotateX: isDesktop ? -12 : -6,
-            rotateY: isDesktop ? 18 : 8,
-            rotateZ: 0,
-            opacity: 0.9,
-            filter: "blur(0px)",
-            transformOrigin: "50% 50%",
-            willChange: "transform, opacity, filter",
-          });
-
-          gsap.to(card, {
-            y: distance,
-            scale: 1.05,
-            rotateX: isDesktop ? 6 : 3,
-            rotateY: isDesktop ? -8 : -4,
-            rotateZ: isDesktop ? -6 : -2,
-            opacity: 1,
-            filter: `blur(${blurMax}px)`,
-            ease: "none",
-            scrollTrigger: {
-              trigger: container,
-              start: "top top",
-              end: "bottom+=1000 top",
-              scrub: 1.1,
-              pin: true,
-              anticipatePin: 1,
-              invalidateOnRefresh: true,
-            },
-          });
-
-          gsap.to(card, {
-            filter: "blur(0px)",
-            ease: "power3.out",
-            scrollTrigger: {
-              trigger: container,
-              start: "top+=100 top",
-              end: "top+=400 top",
-              scrub: true,
-              invalidateOnRefresh: true,
-            },
-          });
-        }
-      );
+      gsap.to(card, {
+        filter: "blur(0px)",
+        ease: "power3.out",
+        scrollTrigger: {
+          trigger: container,
+          start: "top+=100 top",
+          end: "top+=400 top",
+          scrub: true,
+          invalidateOnRefresh: true,
+        },
+      });
     }, container);
 
-    return () => {
-      ctx.revert();
-      mm.revert();
-    };
+    return () => ctx.revert();
   }, []);
 
   return (
